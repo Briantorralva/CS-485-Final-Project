@@ -1,107 +1,85 @@
 <!DOCTYPE html>
 <html>
 <head>
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-    <script src="sprite.js"></script>
+<script src="js/sprite.js"></script>
 
 
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-        canvas {
-            display: block;
-        }
-    </style>
 </head>
-
 <body style="">
-    <canvas id='mycanvas' style=""></canvas>
+<canvas id='mycanvas' style="">
+</canvas>
 
-    <script>
 
+<script>
+    const up_arrow = 38;
+    const down_arrow = 40;
+    const left_arrow = 37;
+    const right_arrow = 39;
 
-        const canvas = document.querySelector("canvas");
-        const sprites_to_draw = new Array(2);
-        var draw_loop_timeout;
-        var img = new Image();
-
-        sprites_to_draw[0] = new Array(0);
-        sprites_to_draw[1] = new Array(0);
-
-        $.getJSON("animationData.json", function(data) {
-            console.log("JSON data loaded:", data);
-            sprites_to_draw[1].push(new Sprite(data, 150, 600, "idle"));
-        });
-
-        $(document).ready(function() {
-            resize();
-
-            img.onload = function() {
-                var ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            };
-            img.src = 'imgs/bk1.jpg';
-
-            //event listeners for arrows 
-            window.addEventListener('keydown', function(event) {
-                const sprite = sprites_to_draw[1][0];
-                switch (event.key) {
-                    case 'ArrowUp':
-                        sprite.startMovement('up');
-                        break;
-                    case 'ArrowDown':
-                        sprite.startMovement('down');
-                        break;
-                    case 'ArrowLeft':
-                        sprite.startMovement('left');
-                        break;
-                    case 'ArrowRight':
-                        sprite.startMovement('right');
-                        break;
-                }
-            });
-
-            window.addEventListener('keyup', function(event) {
-                const sprite = sprites_to_draw[1][0];
-                sprite.stopMovement();
-            });
-
-            draw_loop_timeout = setInterval(draw_loop, 33);
-        });
-
-        window.addEventListener('resize', resize);
-
-        function draw_loop() {
-            var background_length = sprites_to_draw[0].length;
-            var forground_length = sprites_to_draw[1].length;
-
-            const context = canvas.getContext('2d');
-
-            //background sprites
-            for (var i = 0; i < background_length; i++) {
-                sprites_to_draw[0][i].draw();
-            }
-
-            //forground sprites
-            for (var i = 0; i < forground_length; i++) {
-                sprites_to_draw[1][i].draw();
-            }
-        }
-
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            sprites_to_draw[1].forEach(sprite => {
-                sprite.x = canvas.width / 2;
-                sprite.y = canvas.height / 2;
-            });
-        }
-    </script>
+    const canvas = document.querySelector("canvas");
+    const sprites_to_draw = new Array(2); 
+    var draw_loop_timeout;
+    var img = new Image();
     
+    sprites_to_draw[0] = new Array(0); //background and 
+    sprites_to_draw[1] = new Array(0); //forground
+
+    var key_change = false; 
+
+
+    document.body.onkeydown = function(e){
+    if(e.keyCode == up_arrow){
+        sprites_to_draw[1][0].move(up_arrow)
+    }else if(e.keyCode == right_arrow){
+        sprites_to_draw[1][0].move(right_arrow)
+    }else if(e.keyCode == down_arrow){
+        sprites_to_draw[1][0].move(down_arrow)
+    }else if(e.keyCode == left_arrow){
+        sprites_to_draw[1][0].move(left_arrow)
+    }
+    };
+
+    $.getJSON( "Penguins/animationData.json", function( data ) {
+        sprites_to_draw[1].push( new Sprite(data, 150 ,300, "idle") );
+    });
+
+    $( document ).ready(function() {
+        console.log( "Page is now ready" );
+        resize();
+
+        img.onload = function() {
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        };
+        img.src = 'imgs/bk.jpg';
+        draw_loop_timeout = setInterval(draw_loop, 33);
+    });
+
+    window.addEventListener('resize', resize);
+
+    function draw_loop(){
+        
+        var forground_length  = sprites_to_draw[1].length;
+        var has_background_changed = false;
+
+        for(var i = 0; i < forground_length; i++){
+            sprites_to_draw[1][i].draw( { 'has_background_changed' : has_background_changed,
+                                          'key_change' : key_change
+                                        }
+            );
+        }
+    }
+
+    function resize(){
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+    }
+
+</script>
+
 </body>
 </html>
+
