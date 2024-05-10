@@ -1,5 +1,3 @@
-const Sprites = new Array(2);
-
 //Parent Sprit Classa
 class Sprite {
     static total_x_v;
@@ -41,52 +39,9 @@ class Sprite {
         this.avg_y_v = this.total_y_v;
         this.x_v = this.avg_x_v;
         this.y_v = this.avg_y_v; 
-        //this.x_v = this.x_v;
-        //this.y_v = this.y_v; 
     }
 
-    add_avg(){
-        console.log(this.total_x_v);
-        console.log(this.total_y_v);
-        this.avg_x_v = this.total_x_v / 2;
-        this.avg_y_v = this.total_y_v / 2;
-    }
-
-    update_spd(){
-        this.x_v = this.x_v;
-        this.y_v = this.y_v;
-    }
-
-    
-
-    alignment(Sprites){
-        let avg_x = 0;
-        let avg_y = 0;
-        for(var i = 0; i < Sprites[i].length(); i++){
-            avg_x = avg_x + (Sprites[i].x_v);
-            avg_y = avg_y + (Sprites[i].y_v);
-
-        }   
-        avg_x = avg_x / (Sprites.length);
-        avg_y = avg_y / (Sprites.length);
-        for(var i = 0; i < Sprites[i].length(); i++){
-            Sprites[i].x_v = avg_x;
-            Sprites[i].x_y = avg_y;
-        }   
-
-    }
-    
-    avg_speed(){
-        this.avg_x = this.avg_x + this.x_v;
-        this.avg_y = this.avg_y + this.y_v;
-        this.avg_x = this.avg_x / 2;
-        this.avg_y = this.avg_y / 2;
-        this.x_v = this.avg_x;
-        this.x_y = this.avg_y;
-    }
-    
     draw(state){
-        //this.add_avg();
         var ctx = canvas.getContext('2d');
         
         if(this.sprite_json[this.root_e][this.state][this.cur_frame]['img'] == null){
