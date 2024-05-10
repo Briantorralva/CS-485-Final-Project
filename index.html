@@ -39,11 +39,27 @@
     }else if(e.keyCode == left_arrow){
         sprites_to_draw[1][0].move(left_arrow)
     }
+
+    if(e.keyCode == up_arrow){
+        sprites_to_draw[0][0].move(up_arrow)
+    }else if(e.keyCode == right_arrow){
+        sprites_to_draw[0][0].move(right_arrow)
+    }else if(e.keyCode == down_arrow){
+        sprites_to_draw[0][0].move(down_arrow)
+    }else if(e.keyCode == left_arrow){
+        sprites_to_draw[0][0].move(left_arrow)
+    }
     };
 
+    
+
     $.getJSON( "Penguins/animationData.json", function( data ) {
-        sprites_to_draw[1].push( new Sprite(data, 150 ,300, "idle") );
+        sprites_to_draw[0].push( new Sprite(data, 280 ,390, "idle") );
+        sprites_to_draw[1].push( new Sprite(data, 150 ,250, "idle") );
     });
+
+
+
 
     $( document ).ready(function() {
         console.log( "Page is now ready" );
@@ -60,16 +76,25 @@
     window.addEventListener('resize', resize);
 
     function draw_loop(){
-        
+        var background_length  = sprites_to_draw[0].length;        
         var forground_length  = sprites_to_draw[1].length;
         var has_background_changed = false;
 
+        for(var i = 0; i < background_length; i++){
+            sprites_to_draw[0][i].draw( { 'has_background_changed' : has_background_changed,
+                                          'key_change' : key_change
+                                        }
+            );
+        }
+        
         for(var i = 0; i < forground_length; i++){
             sprites_to_draw[1][i].draw( { 'has_background_changed' : has_background_changed,
                                           'key_change' : key_change
                                         }
             );
+            
         }
+        
     }
 
     function resize(){
