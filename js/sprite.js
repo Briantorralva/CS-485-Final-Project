@@ -1,5 +1,11 @@
+const Sprites = new Array(2);
+
 //Parent Sprit Classa
 class Sprite {
+    static total_x_v;
+    static total_y_v;
+    static avg_x_v; 
+    static avg_y_v;
     constructor(sprite_json, x, y, start_state){
         this.sprite_json = sprite_json;
         this.x = x;
@@ -11,13 +17,78 @@ class Sprite {
 
         this.cur_bk_data = null;
 
-        this.x_v = 0;
-        this.y_v = 0;
+        this.stop = false;
+
+        this.x_v = Math.floor(Math.random() * 1);
+        this.y_v = Math.floor(Math.random() * 1);
+        
+        this.avg_x = 1;
+        this.avg_y = 1;
+ 
+        this.follow_range = 50;
     }
 
-    draw(state){
-        var ctx = canvas.getContext('2d');
+    add_total_spd(){
+        this.total_x_v = 1;
+        this.total_y_v = 1;
+        console.log(this.total_x_v);
+        console.log(this.total_y_v);
+        this.avg_x_v = this.x_v;
+        this.avg_y_v = this.y_v;
+        this.total_x_v = this.total_x_v + this.x_v;
+        this.total_y_v = this.total_y_v + this.y_v;
+        this.avg_x_v = this.total_x_v;
+        this.avg_y_v = this.total_y_v;
+        this.x_v = this.avg_x_v;
+        this.y_v = this.avg_y_v; 
+        //this.x_v = this.x_v;
+        //this.y_v = this.y_v; 
+    }
 
+    add_avg(){
+        console.log(this.total_x_v);
+        console.log(this.total_y_v);
+        this.avg_x_v = this.total_x_v / 2;
+        this.avg_y_v = this.total_y_v / 2;
+    }
+
+    update_spd(){
+        this.x_v = this.x_v;
+        this.y_v = this.y_v;
+    }
+
+    
+
+    alignment(Sprites){
+        let avg_x = 0;
+        let avg_y = 0;
+        for(var i = 0; i < Sprites[i].length(); i++){
+            avg_x = avg_x + (Sprites[i].x_v);
+            avg_y = avg_y + (Sprites[i].y_v);
+
+        }   
+        avg_x = avg_x / (Sprites.length);
+        avg_y = avg_y / (Sprites.length);
+        for(var i = 0; i < Sprites[i].length(); i++){
+            Sprites[i].x_v = avg_x;
+            Sprites[i].x_y = avg_y;
+        }   
+
+    }
+    
+    avg_speed(){
+        this.avg_x = this.avg_x + this.x_v;
+        this.avg_y = this.avg_y + this.y_v;
+        this.avg_x = this.avg_x / 2;
+        this.avg_y = this.avg_y / 2;
+        this.x_v = this.avg_x;
+        this.x_y = this.avg_y;
+    }
+    
+    draw(state){
+        //this.add_avg();
+        var ctx = canvas.getContext('2d');
+        
         if(this.sprite_json[this.root_e][this.state][this.cur_frame]['img'] == null){
             console.log("loading");
             this.sprite_json[this.root_e][this.state][this.cur_frame]['img'] = new Image();
@@ -30,59 +101,54 @@ class Sprite {
 
         this.cur_bk_data = ctx.getImageData(this.x, this.y, this.sprite_json[this.root_e][this.state][this.cur_frame]['w'], this.sprite_json[this.root_e][this.state][this.cur_frame]['h']);
         
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        //ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
         ctx.drawImage(this.sprite_json[this.root_e][this.state][this.cur_frame]['img'], this.x, this.y );
-
+        
         this.cur_frame = this.cur_frame + 1;
         if(this.cur_frame >= this.sprite_json[this.root_e][this.state].length){
             console.log(this.cur_frame);
             this.cur_frame = 0;
         }
         
-        //set velocity based on state
-        if(this.state == "walk_N"){
-            this.x_v = 0;
-            this.y_v = -10;
-        }else if(this.state == "walk_E"){
-            this.x_v = 10;
-            this.y_v = 0;
-        }else if(this.state == "walk_S"){
-            this.x_v = 0;
-            this.y_v = 10;
-        }else if(this.state == "walk_W"){
-            this.x_v = -10;
-            this.y_v = 0;
+        this.add_total_spd();
+
+
+        if(this.x >= (window.innerWidth - this.sprite_json[this.root_e][this.state][this.cur_frame]['w']) 
+            && this.state != "walk_N" && this.state != "walk_S" && this.state != "walk_W"
+        )
+        {
+            //East boundary
+            this.x_v = this.x_v * -1; 
+            //this.y_v = this.y_v - this.y; 
+
+        }
+        if(this.x <= 0 
+            && this.state != "walk_N" && this.state != "walk_S" && this.state != "walk_E"){
+            //West boundary
+            this.x_v = this.x_v * -1;
+        }
+         if(this.y >= (window.innerHeight - this.sprite_json[this.root_e][this.state][this.cur_frame]['h']) 
+            && this.state != "walk_W" && this.state != "walk_E" && this.state != "walk_N"
+        ){
+            //South boundary
+            this.y_v = this.y_v * -1;
+        }
+         if(this.y <= 0 && this.state != "walk_W" && this.state != "walk_E" && this.state != "walk_S"){
+            //North boundary
+            this.y_v = this.y_v * -1;  
         }
 
-        if(this.x >= (window.innerWidth - this.sprite_json[this.root_e][this.state][this.cur_frame]['w']) ){
-            //East boundary
-            this.x = this.x - 30;
-            this.set_idle_state();
-        }else if(this.x <= 0){
-            //West boundary
-            this.x = this.x + 30;
-            this.set_idle_state();
-        }else if(this.y >= (window.innerHeight - this.sprite_json[this.root_e][this.state][this.cur_frame]['h']) ){
-            //South boundary
-            this.y = this.y - 30;
-            this.set_idle_state();
-        }else if(this.y <= 0){
-            //North boundary
-            this.y = this.y + 30;
-            this.set_idle_state();
-        }else{
             this.x = this.x + this.x_v;
             this.y = this.y + this.y_v;
-        }
 
         return false;
-        
     }
 
     set_idle_state(){
         this.x_v = 0;
         this.y_v = 0;
+        
         this.state = "idle";
     }
 
@@ -118,5 +184,7 @@ class Sprite {
     }
 
    }
+
+   
 
 }
